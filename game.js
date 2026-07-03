@@ -1,1 +1,92 @@
 // Arkanoid MVP
+
+const canvas = document.getElementById( 'game' );
+const ctx = canvas.getContext( '2d' );
+
+const CANVAS_WIDTH = 480;
+const CANVAS_HEIGHT = 640;
+
+const ROWS = 5;
+const COLS = 8;
+const BLOCK_WIDTH = 54;
+const BLOCK_HEIGHT = 20;
+const BLOCK_OFFSET_TOP = 40;
+const BLOCK_OFFSET_LEFT = 24;
+const ROW_COLORS = [ 'hotpink', 'red', 'yellow', 'green', 'cyan' ]; // fila 0 = arriba
+const POINTS_PER_BLOCK = 10;
+
+const PADDLE_WIDTH = 100;
+const PADDLE_HEIGHT = 14;
+const PADDLE_SPEED = 6;
+const BALL_RADIUS = 8;
+
+function createBlocks() {
+  const blocks = [];
+  for ( let row = 0; row < ROWS; row++ ) {
+    for ( let col = 0; col < COLS; col++ ) {
+      blocks.push( {
+        row,
+        col,
+        x: BLOCK_OFFSET_LEFT + col * BLOCK_WIDTH,
+        y: BLOCK_OFFSET_TOP + row * BLOCK_HEIGHT,
+        width: BLOCK_WIDTH,
+        height: BLOCK_HEIGHT,
+        color: ROW_COLORS[ row ],
+        alive: true,
+      } );
+    }
+  }
+  return blocks;
+}
+
+function createInitialState() {
+  return {
+    status: 'playing', // 'playing' | 'gameover' | 'win'
+    score: 0,
+    lives: 2,
+    paddle: {
+      x: ( CANVAS_WIDTH - PADDLE_WIDTH ) / 2,
+      y: CANVAS_HEIGHT - 30,
+      width: PADDLE_WIDTH,
+      height: PADDLE_HEIGHT,
+      speed: PADDLE_SPEED,
+    },
+    ball: {
+      x: 0,
+      y: 0,
+      radius: BALL_RADIUS,
+      dx: 3,
+      dy: -3,
+      attached: true, // pegada al paddle, esperando espacio
+    },
+    blocks: createBlocks(),
+  };
+}
+
+function attachBallToPaddle( state ) {
+  state.ball.x = state.paddle.x + state.paddle.width / 2;
+  state.ball.y = state.paddle.y - state.ball.radius;
+}
+
+let state = createInitialState();
+attachBallToPaddle( state );
+
+function draw() {
+  ctx.clearRect( 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT );
+
+  state.blocks.forEach( ( block ) => {
+    if ( !block.alive ) return;
+    drawSprite( ctx, `block_${ block.color }`, block.x, block.y, block.width, block.height );
+  } );
+
+  drawSprite( ctx, 'paddle', state.paddle.x, state.paddle.y, state.paddle.width, state.paddle.height );
+  drawSprite(
+    ctx, 'ball',
+    state.ball.x - state.ball.radius, state.ball.y - state.ball.radius,
+    state.ball.radius * 2, state.ball.radius * 2
+  );
+}
+
+loadSpritesheet( () => {
+  draw();
+} );
