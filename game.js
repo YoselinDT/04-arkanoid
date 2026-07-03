@@ -20,6 +20,13 @@ const PADDLE_HEIGHT = 14;
 const PADDLE_SPEED = 6;
 const BALL_RADIUS = 8;
 
+const RESTART_BUTTON = {
+  width: 140,
+  height: 40,
+  x: ( CANVAS_WIDTH - 140 ) / 2,
+  y: CANVAS_HEIGHT / 2 + 40,
+};
+
 function createBlocks() {
   const blocks = [];
   for ( let row = 0; row < ROWS; row++ ) {
@@ -87,6 +94,8 @@ function draw() {
   );
 
   drawHud();
+
+  if ( state.status !== 'playing' ) drawEndOverlay();
 }
 
 function drawHud() {
@@ -95,6 +104,36 @@ function drawHud() {
   ctx.textBaseline = 'top';
   ctx.fillText( `Score: ${ state.score }`, 10, 10 );
   ctx.fillText( `Lives: ${ state.lives }`, CANVAS_WIDTH - 90, 10 );
+}
+
+function drawEndOverlay() {
+  const title = state.status === 'win' ? 'You Win' : 'Game Over';
+
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+  ctx.fillRect( 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT );
+
+  ctx.fillStyle = '#fff';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+
+  ctx.font = 'bold 36px sans-serif';
+  ctx.fillText( title, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 30 );
+
+  ctx.font = '20px sans-serif';
+  ctx.fillText( `Score: ${ state.score }`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 10 );
+
+  ctx.fillStyle = '#2a7';
+  ctx.fillRect( RESTART_BUTTON.x, RESTART_BUTTON.y, RESTART_BUTTON.width, RESTART_BUTTON.height );
+
+  ctx.fillStyle = '#fff';
+  ctx.font = '18px sans-serif';
+  ctx.fillText(
+    'Reiniciar',
+    RESTART_BUTTON.x + RESTART_BUTTON.width / 2,
+    RESTART_BUTTON.y + RESTART_BUTTON.height / 2 + 6
+  );
+
+  ctx.textAlign = 'left';
 }
 
 const keys = { left: false, right: false };
@@ -151,12 +190,20 @@ function updateBall() {
 
   if ( state.ball.y - state.ball.radius > CANVAS_HEIGHT ) {
     state.lives--;
+    if ( state.lives <= 0 ) {
+      state.status = 'gameover';
+      return;
+    }
     resetPaddleAndBall( state );
     return;
   }
 
   checkPaddleCollision();
   checkBlocksCollision();
+
+  if ( state.blocks.every( ( block ) => !block.alive ) ) {
+    state.status = 'win';
+  }
 }
 
 function checkPaddleCollision() {
@@ -218,6 +265,7 @@ function checkBlocksCollision() {
 }
 
 function update() {
+  if ( state.status !== 'playing' ) return;
   updatePaddle();
   updateBall();
 }
