@@ -98,12 +98,19 @@ function draw() {
   if ( state.status !== 'playing' ) drawEndOverlay();
 }
 
+const LIVES_ICON_SIZE = 14;
+const LIVES_ICON_GAP = 6;
+
 function drawHud() {
   ctx.fillStyle = '#fff';
   ctx.font = '16px sans-serif';
   ctx.textBaseline = 'top';
   ctx.fillText( `Score: ${ state.score }`, 10, 10 );
-  ctx.fillText( `Lives: ${ state.lives }`, CANVAS_WIDTH - 90, 10 );
+
+  for ( let i = 0; i < state.lives; i++ ) {
+    const x = CANVAS_WIDTH - 10 - ( i + 1 ) * ( LIVES_ICON_SIZE + LIVES_ICON_GAP ) + LIVES_ICON_GAP;
+    drawSprite( ctx, 'ball', x, 10, LIVES_ICON_SIZE, LIVES_ICON_SIZE );
+  }
 }
 
 function drawEndOverlay() {
