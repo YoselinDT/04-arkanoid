@@ -87,6 +87,37 @@ function draw() {
   );
 }
 
-loadSpritesheet( () => {
+const keys = { left: false, right: false };
+
+window.addEventListener( 'keydown', ( e ) => {
+  if ( e.code === 'ArrowLeft' ) keys.left = true;
+  if ( e.code === 'ArrowRight' ) keys.right = true;
+} );
+
+window.addEventListener( 'keyup', ( e ) => {
+  if ( e.code === 'ArrowLeft' ) keys.left = false;
+  if ( e.code === 'ArrowRight' ) keys.right = false;
+} );
+
+function updatePaddle() {
+  if ( keys.left ) state.paddle.x -= state.paddle.speed;
+  if ( keys.right ) state.paddle.x += state.paddle.speed;
+
+  state.paddle.x = Math.max( 0, Math.min( CANVAS_WIDTH - state.paddle.width, state.paddle.x ) );
+
+  if ( state.ball.attached ) attachBallToPaddle( state );
+}
+
+function update() {
+  updatePaddle();
+}
+
+function gameLoop() {
+  update();
   draw();
+  requestAnimationFrame( gameLoop );
+}
+
+loadSpritesheet( () => {
+  gameLoop();
 } );
