@@ -4,11 +4,15 @@ Este archivo proporciona guía a Claude Code (claude.ai/code) al trabajar con c�
 
 ## Estado del proyecto
 
-Este es un juego de Arkanoid/Breakout **aún no implementado**. Según README.md, el objetivo es construirlo con HTML, CSS y JavaScript puro, **sin dependencias**, para que cualquier persona pueda jugarlo (por ejemplo, abriendo un archivo HTML directamente, sin build ni gestor de paquetes). Actualmente solo existen los assets — todavía no hay HTML, CSS ni lógica del juego en JS.
+Este es un juego de Arkanoid/Breakout. El MVP jugable ya está **implementado** (ver `specs/01-arkanoid-mvp.md`): `index.html`, `style.css` y `game.js` en la raíz. El objetivo, según README.md, es HTML, CSS y JavaScript puro, **sin dependencias**, para que cualquier persona pueda jugarlo abriendo el HTML directamente (sin build ni gestor de paquetes).
+
+Funcionalidad actual: paddle controlado con flechas, bola con física de rebote, un nivel fijo de 40 bloques (5x8), sistema de 2 vidas (mostradas en el HUD como iconos de la bola, no como número), score visible, y pantallas de "Game Over"/"You Win" con opción de reiniciar. Sin sonido ni animación de explosión al romper bloques (deferred — ver "Out of scope" en `specs/01-arkanoid-mvp.md`).
+
+Los specs de features nuevas o cambios de alcance van en `specs/` (usar `/spec` para crearlos).
 
 ## Comandos
 
-No existe herramental de build, lint ni tests. No hay `package.json`. Dado que el proyecto debe mantenerse sin dependencias, no introduzcas herramientas de npm/build salvo que se pida explícitamente — sirve/abre el HTML directamente (por ejemplo `open index.html` o un servidor estático simple) para ejecutar el juego una vez que exista.
+No existe herramental de build, lint ni tests. No hay `package.json`. Dado que el proyecto debe mantenerse sin dependencias, no introduzcas herramientas de npm/build salvo que se pida explícitamente — sirve/abre el HTML directamente (por ejemplo `open index.html` o un servidor estático simple) para ejecutar el juego.
 
 ## Assets y API del spritesheet
 
