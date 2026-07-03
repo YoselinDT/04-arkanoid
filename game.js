@@ -85,6 +85,16 @@ function draw() {
     state.ball.x - state.ball.radius, state.ball.y - state.ball.radius,
     state.ball.radius * 2, state.ball.radius * 2
   );
+
+  drawHud();
+}
+
+function drawHud() {
+  ctx.fillStyle = '#fff';
+  ctx.font = '16px sans-serif';
+  ctx.textBaseline = 'top';
+  ctx.fillText( `Score: ${ state.score }`, 10, 10 );
+  ctx.fillText( `Lives: ${ state.lives }`, CANVAS_WIDTH - 90, 10 );
 }
 
 const keys = { left: false, right: false };
@@ -142,6 +152,68 @@ function updateBall() {
   if ( state.ball.y - state.ball.radius > CANVAS_HEIGHT ) {
     state.lives--;
     resetPaddleAndBall( state );
+    return;
+  }
+
+  checkPaddleCollision();
+  checkBlocksCollision();
+}
+
+function checkPaddleCollision() {
+  const ball = state.ball;
+  const paddle = state.paddle;
+
+  if ( ball.dy <= 0 ) return;
+
+  const withinX = ball.x + ball.radius >= paddle.x && ball.x - ball.radius <= paddle.x + paddle.width;
+  const withinY = ball.y + ball.radius >= paddle.y && ball.y - ball.radius <= paddle.y + paddle.height;
+
+  if ( !withinX || !withinY ) return;
+
+  ball.y = paddle.y - ball.radius;
+
+  const hitPos = ( ball.x - ( paddle.x + paddle.width / 2 ) ) / ( paddle.width / 2 ); // -1..1
+  const speed = Math.hypot( ball.dx, ball.dy );
+  const maxAngle = Math.PI / 3; // 60 grados
+  const angle = hitPos * maxAngle;
+
+  ball.dx = speed * Math.sin( angle );
+  ball.dy = -Math.abs( speed * Math.cos( angle ) );
+}
+
+function circleRectCollides( ball, rect ) {
+  const closestX = Math.max( rect.x, Math.min( ball.x, rect.x + rect.width ) );
+  const closestY = Math.max( rect.y, Math.min( ball.y, rect.y + rect.height ) );
+  const dx = ball.x - closestX;
+  const dy = ball.y - closestY;
+  return ( dx * dx + dy * dy ) <= ball.radius * ball.radius;
+}
+
+function checkBlocksCollision() {
+  const ball = state.ball;
+
+  for ( const block of state.blocks ) {
+    if ( !block.alive ) continue;
+    if ( !circleRectCollides( ball, block ) ) continue;
+
+    block.alive = false;
+    state.score += POINTS_PER_BLOCK;
+
+    const overlapLeft = ( ball.x + ball.radius ) - block.x;
+    const overlapRight = ( block.x + block.width ) - ( ball.x - ball.radius );
+    const overlapTop = ( ball.y + ball.radius ) - block.y;
+    const overlapBottom = ( block.y + block.height ) - ( ball.y - ball.radius );
+
+    const minOverlapX = Math.min( overlapLeft, overlapRight );
+    const minOverlapY = Math.min( overlapTop, overlapBottom );
+
+    if ( minOverlapX < minOverlapY ) {
+      ball.dx = -ball.dx;
+    } else {
+      ball.dy = -ball.dy;
+    }
+
+    break; // un bloque por frame
   }
 }
 
