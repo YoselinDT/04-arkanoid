@@ -92,6 +92,10 @@ const keys = { left: false, right: false };
 window.addEventListener( 'keydown', ( e ) => {
   if ( e.code === 'ArrowLeft' ) keys.left = true;
   if ( e.code === 'ArrowRight' ) keys.right = true;
+  if ( e.code === 'Space' && state.ball.attached ) {
+    e.preventDefault();
+    state.ball.attached = false;
+  }
 } );
 
 window.addEventListener( 'keyup', ( e ) => {
@@ -108,8 +112,42 @@ function updatePaddle() {
   if ( state.ball.attached ) attachBallToPaddle( state );
 }
 
+function resetPaddleAndBall( state ) {
+  state.paddle.x = ( CANVAS_WIDTH - state.paddle.width ) / 2;
+  state.ball.dx = 3;
+  state.ball.dy = -3;
+  state.ball.attached = true;
+  attachBallToPaddle( state );
+}
+
+function updateBall() {
+  if ( state.ball.attached ) return;
+
+  state.ball.x += state.ball.dx;
+  state.ball.y += state.ball.dy;
+
+  if ( state.ball.x - state.ball.radius <= 0 ) {
+    state.ball.x = state.ball.radius;
+    state.ball.dx = -state.ball.dx;
+  } else if ( state.ball.x + state.ball.radius >= CANVAS_WIDTH ) {
+    state.ball.x = CANVAS_WIDTH - state.ball.radius;
+    state.ball.dx = -state.ball.dx;
+  }
+
+  if ( state.ball.y - state.ball.radius <= 0 ) {
+    state.ball.y = state.ball.radius;
+    state.ball.dy = -state.ball.dy;
+  }
+
+  if ( state.ball.y - state.ball.radius > CANVAS_HEIGHT ) {
+    state.lives--;
+    resetPaddleAndBall( state );
+  }
+}
+
 function update() {
   updatePaddle();
+  updateBall();
 }
 
 function gameLoop() {
