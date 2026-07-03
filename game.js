@@ -152,6 +152,27 @@ window.addEventListener( 'keyup', ( e ) => {
   if ( e.code === 'ArrowRight' ) keys.right = false;
 } );
 
+function restartGame() {
+  state = createInitialState();
+  attachBallToPaddle( state );
+}
+
+canvas.addEventListener( 'click', ( e ) => {
+  if ( state.status === 'playing' ) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = CANVAS_WIDTH / rect.width;
+  const scaleY = CANVAS_HEIGHT / rect.height;
+  const clickX = ( e.clientX - rect.left ) * scaleX;
+  const clickY = ( e.clientY - rect.top ) * scaleY;
+
+  const withinButton =
+    clickX >= RESTART_BUTTON.x && clickX <= RESTART_BUTTON.x + RESTART_BUTTON.width &&
+    clickY >= RESTART_BUTTON.y && clickY <= RESTART_BUTTON.y + RESTART_BUTTON.height;
+
+  if ( withinButton ) restartGame();
+} );
+
 function updatePaddle() {
   if ( keys.left ) state.paddle.x -= state.paddle.speed;
   if ( keys.right ) state.paddle.x += state.paddle.speed;
